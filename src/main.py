@@ -23,7 +23,7 @@ def parse_args() -> argparse.Namespace:
     # TODO: prune not implemented yet
     parser.add_argument(
         "-p",
-        "--prune", 
+        "--prune",
         type=int,
         help="Remove top __% most frequent words",
     )
@@ -63,8 +63,8 @@ def main():
     # iterate through parsed arguments in user specified order 
     for k,v in args.__dict__.items():
         log.debug('This arg is %s %s' % (k, v))
-        # skip sentences 
-        if k == 'sentences': 
+        # ignore input / logging level args  
+        if k == 'verbose' or k == 'quiet' or k == 'input': 
             continue
         # TODO: implement each strategy
         # TODO: import each strategy as class 

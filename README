@@ -1,11 +1,10 @@
 .
 ├── src/
 │   ├── main.py
-│   ├── feature1.py
-│   ├── feature2.py
-│   └── feature3.py
+│   ├── delbytype.py
+│   ├── utils.py
 ├── examples/
 ├── unit_tests/
-├── toy_data/
+├── data/
 ├── setup.py
 └── README

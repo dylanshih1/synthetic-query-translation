@@ -7,6 +7,8 @@ from __future__ import annotations
 import argparse
 import logging
 from pathlib import Path
+from postagger import POSTagger
+from utils import CustomAction
 
 log = logging.getLogger(Path(__file__).stem)  # For usage, see findsim.py in earlier assignment.
 
@@ -20,12 +22,39 @@ def parse_args() -> argparse.Namespace:
     )
 
     # this is how to add an optional argument
+    # add action=CustomAction for features 
     # TODO: prune not implemented yet
     parser.add_argument(
         "-p",
         "--prune",
         type=int,
         help="Remove top __% most frequent words",
+        action=CustomAction
+    )
+
+    # strategies for filtering by word type 
+    # ADJ, ADP, ADV, AUX, CCONJ, DET, INTJ, NOUN, NUM, PART, PRON, PROPN, PUNCT, SCONJ, SYM, VERB, X
+    parser.add_argument(
+        '-dl',
+        '--denylist', 
+        nargs='+', 
+        help='List of word types to remove from sentences. See https://universaldependencies.org/u/pos/ for possible types',
+        action=CustomAction
+    )
+    parser.add_argument(
+        '-al',
+        '--allowlist', 
+        nargs='+', 
+        help='List of word types to keep in sentences. See https://universaldependencies.org/u/pos/ for possible types',
+        action=CustomAction
+    )
+
+    # optionally specify output file name 
+    parser.add_argument(
+        '-o',
+        '--output', 
+        type=Path,
+        help='Specify file name for output sentences',
     )
 
     # verbosity of logging is controlled by the -v and -q flags
@@ -61,11 +90,20 @@ def main():
     sentences = store_sentences(args.input)
 
     # iterate through parsed arguments in user specified order 
-    for k,v in args.__dict__.items():
+    for k,v in args.ordered_args:
         log.debug('This arg is %s %s' % (k, v))
         # ignore input / logging level args  
-        if k == 'verbose' or k == 'quiet' or k == 'input': 
+        if k == 'verbose' or k == 'quiet' or k == 'input' or v == None: 
             continue
+        if k == 'denylist': 
+            tagger = POSTagger(sentences)
+            tagger.remove_types(v)
+            sentences = tagger.get_sentences()
+        if k == 'allowlist': 
+            tagger = POSTagger(sentences)
+            tagger.keep_types(v)
+            sentences = tagger.get_sentences()
+        
         # TODO: implement each strategy
         # TODO: import each strategy as class 
         # e.g. 
@@ -74,9 +112,15 @@ def main():
         # NOTE: take in list[str], return list[str]
         # NOTE: modify sentences in place of reassign; whichever is easier
     
-    # print out modified sentences
-    for sentence in sentences: 
-        print(sentence)
-
+    if args.output != None: 
+        # write to output file if specified
+        f = open(args.output, "w")
+        f.write('\n'.join(sentences))
+        f.close()
+    else: 
+        # else print to console 
+        for sentence in sentences: 
+            print(sentence)
+    
 if __name__ == "__main__":
     main()

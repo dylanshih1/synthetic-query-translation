@@ -24,20 +24,3 @@ class SRLLabel:
             filtered_sentence = " ".join(filtered_tokens)
             filtered_sentences.append(filtered_sentence)
         return filtered_sentences
-
-if __name__ == "__main__":
-    input_sentences = [
-        "Dylan likes chocolate.",
-        "The second sentence contains some named entities like New York and John.",
-        "The third sentence has multiple verbs and adjectives."
-    ]
-
-    SRL = SRLLabel(input_sentences)
-    filtered_results = SRL.filter_sentences()
-    print(filtered_results)
-
-    # Print or use the filtered results as needed
-    for original, filtered in zip(input_sentences, filtered_results):
-        print("Original Sentence:", original)
-        print("Filtered Sentence:", filtered)
-        print("\n")

@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import logging
 from pathlib import Path
+from depparser import DependencyParser
 from postagger import POSTagger
 from utils import CustomAction
 
@@ -47,6 +48,12 @@ def parse_args() -> argparse.Namespace:
         nargs='+', 
         help='List of word types to keep in sentences. See https://universaldependencies.org/u/pos/ for possible types',
         action=CustomAction
+    )
+    parser.add_argument(
+        '-dp',
+        '--depparser', 
+        action='store_true',
+        help='Keep only syntactic heads (words that other words depend on). See https://stanfordnlp.github.io/stanza/depparse.html',
     )
 
     # optionally specify output file name 
@@ -89,21 +96,28 @@ def main():
     # read in sentences and store as list
     sentences = store_sentences(args.input)
 
+    # dependency parser must run on initial sentences 
+    if args.depparser: 
+        tagger = DependencyParser(sentences)
+        tagger.keep_heads()
+        sentences = tagger.get_sentences()
+
     # iterate through parsed arguments in user specified order 
-    for k,v in args.ordered_args:
-        log.debug('This arg is %s %s' % (k, v))
-        # ignore input / logging level args  
-        if k == 'verbose' or k == 'quiet' or k == 'input' or v == None: 
-            continue
-        if k == 'denylist': 
-            tagger = POSTagger(sentences)
-            tagger.remove_types(v)
-            sentences = tagger.get_sentences()
-        if k == 'allowlist': 
-            tagger = POSTagger(sentences)
-            tagger.keep_types(v)
-            sentences = tagger.get_sentences()
-        
+    if 'ordered_args' in args:
+        for k,v in args.ordered_args:
+            log.debug('This arg is %s %s' % (k, v))
+            # ignore input / logging level args  
+            if k == 'verbose' or k == 'quiet' or k == 'input' or v == None: 
+                continue
+            if k == 'denylist': 
+                tagger = POSTagger(sentences)
+                tagger.remove_types(v)
+                sentences = tagger.get_sentences()
+            if k == 'allowlist': 
+                tagger = POSTagger(sentences)
+                tagger.keep_types(v)
+                sentences = tagger.get_sentences()
+
         # TODO: implement each strategy
         # TODO: import each strategy as class 
         # e.g. 

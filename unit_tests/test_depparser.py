@@ -14,3 +14,8 @@ def test_keep_heads():
     parser = DependencyParser([sentence])
     parser.keep_heads()
     assert parser.sentences == ["fox jumps dog"]
+
+def test_keep_heads():
+    parser = DependencyParser([sentence, "The quick brown fox eats the lazy dog."])
+    parser.keep_topic()
+    assert parser.sentences == ["The quick brown fox", "the lazy dog"]

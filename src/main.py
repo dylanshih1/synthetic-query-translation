@@ -50,10 +50,16 @@ def parse_args() -> argparse.Namespace:
         action=CustomAction
     )
     parser.add_argument(
-        '-dp',
-        '--depparser', 
+        '-sh',
+        '--synt_heads', 
         action='store_true',
         help='Keep only syntactic heads (words that other words depend on). See https://stanfordnlp.github.io/stanza/depparse.html',
+    )
+    parser.add_argument(
+        '-t',
+        '--topic', 
+        action='store_true',
+        help='Keep only object or subject of a sentence. See https://stanfordnlp.github.io/stanza/depparse.html',
     )
 
     # optionally specify output file name 
@@ -96,10 +102,18 @@ def main():
     # read in sentences and store as list
     sentences = store_sentences(args.input)
 
+    # cannot run both head and topic 
+    assert not (args.synt_heads and args.topic)
+
     # dependency parser must run on initial sentences 
-    if args.depparser: 
+    if args.synt_heads: 
         tagger = DependencyParser(sentences)
         tagger.keep_heads()
+        sentences = tagger.get_sentences()
+
+    if args.topic: 
+        tagger = DependencyParser(sentences)
+        tagger.keep_topic()
         sentences = tagger.get_sentences()
 
     # iterate through parsed arguments in user specified order 

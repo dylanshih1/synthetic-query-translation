@@ -8,24 +8,16 @@ class Lemmatizer:
         self.sentences = sentences
         self.taggers = [nlp(sent) for sent in self.sentences]
 
-    def to_lemma(self, conversion_types: list[str]=[]) -> None:
-        """Convert words to their lemma form. 
-
-        Arguments: 
-        conversion_types -- the parts of speech to be converted to lemma form. 
-            If not specified, all words will be converted.
-        """
+    def convert_types(self, conversion_types: list[str]) -> None:
+        """Convert words of specified types to their lemma form."""
         for i, tagger in enumerate(self.taggers):
             lemmas = []
             for sent in tagger.sentences:
                 for word in sent.words:
-                    if not conversion_types:
+                    if word.upos in conversion_types:
                         lemmas.append(word.lemma)
                     else:
-                        if word.upos in conversion_types:
-                            lemmas.append(word.lemma)
-                        else:
-                            lemmas.append(word.text)
+                        lemmas.append(word.text)
             self.sentences[i] = ' '.join(lemmas)
     
     def get_sentences(self) -> list[str]:

@@ -9,6 +9,7 @@ import logging
 from pathlib import Path
 from depparser import DependencyParser
 from postagger import POSTagger
+from lemmatizer import Lemmatizer
 from utils import CustomAction
 
 log = logging.getLogger(Path(__file__).stem)  # For usage, see findsim.py in earlier assignment.
@@ -60,6 +61,12 @@ def parse_args() -> argparse.Namespace:
         '--topic', 
         action='store_true',
         help='Keep only object or subject of a sentence. See https://stanfordnlp.github.io/stanza/depparse.html',
+    )
+    parser.add_argument(
+        '-lz',
+        '--lemmatize',
+        action='store_true',
+        help='Convert words to their lemma forms. See https://stanfordnlp.github.io/stanza/lemma.html'
     )
 
     # optionally specify output file name 

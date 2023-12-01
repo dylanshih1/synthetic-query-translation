@@ -2,16 +2,32 @@ import pytest
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
-from lemmatizer import Lemmatize
+from lemmatizer import Lemmatizer
 
-sentences = ["The quick brown fox", "Jumps over the lazy dog", "I saw foxes"]
+sentence = ["the quick brown fox jumps over the lazy dogs"]
 
 def test_get_sentences():
-    lemmatizer = Lemmatizer(sentences)
-    assert lemmatizer.sentences == ["The quick brown fox", "Jumps over the lazy dog", "I saw foxes"]
+    lemmatizer = Lemmatizer(sentence)
+    assert lemmatizer.sentences == ["the quick brown fox jumps over the lazy dogs"]
 
 def test_basic_conversion():
-    lemmatizer = Lemmatizer(sentences)
+    lemmatizer = Lemmatizer(sentence)
     lemmatizer.to_lemma()
-    assert lemmatizer.sentences == ["The quick brown fox", "Jump over the lazy dog", "I see fox"]
+    assert lemmatizer.sentences == ["the quick brown fox jump over the lazy dog"]
+
+def test_convert_nouns():
+    lemmatizer = Lemmatizer(sentence)
+    lemmatizer.to_lemma(["NOUN"])
+    assert lemmatizer.sentences == ["the quick brown fox jumps over the lazy dog"]
+
+def test_convert_verbs():
+    lemmatizer = Lemmatizer(sentence)
+    lemmatizer.to_lemma(["VERB"])
+    assert lemmatizer.sentences == ["the quick brown fox jump over the lazy dogs"]
+
+def test_convert_multiple():
+    lemmatizer = Lemmatizer(sentence)
+    lemmatizer.to_lemma(["NOUN", "VERB"])
+    assert lemmatizer.sentences == ["the quick brown fox jump over the lazy dog"]
+
 

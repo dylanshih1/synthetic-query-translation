@@ -8,6 +8,10 @@ import argparse
 import logging
 from pathlib import Path
 from postagger import POSTagger
+from PruneTopN import PruneTopN
+from NoiseInjection import NoiseInjection
+from SRL import SRLLabel
+from ContextWindow import ContextWindow
 from utils import CustomAction
 
 log = logging.getLogger(Path(__file__).stem)  # For usage, see findsim.py in earlier assignment.
@@ -48,7 +52,32 @@ def parse_args() -> argparse.Namespace:
         help='List of word types to keep in sentences. See https://universaldependencies.org/u/pos/ for possible types',
         action=CustomAction
     )
-
+    
+    #noise injection
+    parser.add_argument(
+        "-n",
+        "--noise",
+        nargs="+",
+        help="add noise to sentences such as miscapitalization and spelling errors",
+        action=CustomAction
+    
+    )
+    #SRL Labeling (basically same function as POStagger but we have named entities)
+    parser.add_argument(
+        "-s",
+        "--SRL",
+        nargs="+",
+        help="SRL model that deletes everything other than adj, verb, noun, and named entity",
+        action = CustomAction
+        
+    )
+    #Create context window
+    parser.add_argument(
+        "-cw",
+        "--Context",
+        help="create context window around rarest word to create search query",
+        action=CustomAction
+    )
     # optionally specify output file name 
     parser.add_argument(
         '-o',
@@ -103,6 +132,18 @@ def main():
             tagger = POSTagger(sentences)
             tagger.keep_types(v)
             sentences = tagger.get_sentences()
+        if k == 'prune':
+            prune = PruneTopN(sentences, v)
+            sentences = prune.delete_top_words_from_sentences()
+        if k == 'noise':
+            noise = NoiseInjection(sentences)
+            sentences = noise.inject_noise_to_sentences()
+        if k == "SRL":
+            srl = SRLLabel(sentences)
+            sentences = srl.filter_sentences(v)
+        if k=="Context":
+            cw = ContextWindow(sentences)
+            sentences = cw.generate_sentence(v)
         
         # TODO: implement each strategy
         # TODO: import each strategy as class 

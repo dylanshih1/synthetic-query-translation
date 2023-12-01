@@ -61,13 +61,14 @@ class ContextWindow:
         context_window = words[start_index:end_index]
         return context_window
     
-    def generate_sentence(self):
+    def generate_sentence(self, window_size):
         filtered_sentences = []
+        window_size = int(window_size)
         for sentence in self.sentences:
             words = sentence.split()
             zipf_probs = self.generate_zipf_probs(words)
             rarest_word = self.find_rarest_word(words, zipf_probs)
-            context_window = self.create_context_window(sentence, rarest_word)
+            context_window = self.create_context_window(sentence, rarest_word, window_size)
             filtered_sentences.append(" ".join(context_window))
         
         return filtered_sentences

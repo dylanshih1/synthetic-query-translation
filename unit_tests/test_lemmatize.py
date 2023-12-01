@@ -10,6 +10,11 @@ def test_get_sentences():
     lemmatizer = Lemmatizer([sentence])
     assert lemmatizer.sentences == ["the quick brown fox jumps over the lazy dogs"]
 
+def test_basic_convert():
+    lemmatizer = Lemmatizer([sentence])
+    lemmatizer.convert_all()
+    assert lemmatizer.sentences == ["the quick brown fox jump over the lazy dog"]
+    
 def test_convert_nouns():
     lemmatizer = Lemmatizer([sentence])
     lemmatizer.convert_types(["NOUN"])

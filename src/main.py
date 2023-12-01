@@ -138,6 +138,10 @@ def main():
                 tagger = POSTagger(sentences)
                 tagger.keep_types(v)
                 sentences = tagger.get_sentences()
+            if k == 'lemmatize':
+                tagger = Lemmatizer(sentences)
+                tagger.convert_types(v)
+                sentences = tagger.get_sentences()
 
         # TODO: implement each strategy
         # TODO: import each strategy as class 

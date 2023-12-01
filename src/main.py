@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import logging
 from pathlib import Path
+from depparser import DependencyParser
 from postagger import POSTagger
 from PruneTopN import PruneTopN
 from NoiseInjection import NoiseInjection
@@ -52,7 +53,7 @@ def parse_args() -> argparse.Namespace:
         help='List of word types to keep in sentences. See https://universaldependencies.org/u/pos/ for possible types',
         action=CustomAction
     )
-    
+
     #noise injection
     parser.add_argument(
         "-n",
@@ -78,6 +79,19 @@ def parse_args() -> argparse.Namespace:
         help="create context window around rarest word to create search query",
         action=CustomAction
     )
+    parser.add_argument(
+        '-sh',
+        '--synt_heads', 
+        action='store_true',
+        help='Keep only syntactic heads (words that other words depend on). See https://stanfordnlp.github.io/stanza/depparse.html',
+    )
+    parser.add_argument(
+        '-t',
+        '--topic', 
+        action='store_true',
+        help='Keep only object or subject of a sentence. See https://stanfordnlp.github.io/stanza/depparse.html',
+    )
+
     # optionally specify output file name 
     parser.add_argument(
         '-o',
@@ -118,6 +132,20 @@ def main():
     # read in sentences and store as list
     sentences = store_sentences(args.input)
 
+    # cannot run both head and topic 
+    assert not (args.synt_heads and args.topic)
+
+    # dependency parser must run on initial sentences 
+    if args.synt_heads: 
+        tagger = DependencyParser(sentences)
+        tagger.keep_heads()
+        sentences = tagger.get_sentences()
+
+    if args.topic: 
+        tagger = DependencyParser(sentences)
+        tagger.keep_topic()
+        sentences = tagger.get_sentences()
+
     # iterate through parsed arguments in user specified order 
     for k,v in args.ordered_args:
         log.debug('This arg is %s %s' % (k, v))
@@ -144,7 +172,7 @@ def main():
         if k=="Context":
             cw = ContextWindow(sentences)
             sentences = cw.generate_sentence(v)
-        
+            
         # TODO: implement each strategy
         # TODO: import each strategy as class 
         # e.g. 

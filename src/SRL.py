@@ -15,15 +15,28 @@ class SRLLabel:
         self.sentences = sentences
         
         
-    
-    def filter_sentences(self, allowedList):
+    def allow_list(self, allowList):
         filtered_sentences = []
         for sentence in self.sentences:
             doc = nlp(sentence)
-            filtered_tokens = [token.text for token in doc if token.pos_ in allowedList or token.ent_type_]
+            filtered_tokens = [token.text for token in doc if token.pos_ in allowList]
             filtered_sentence = " ".join(filtered_tokens)
             filtered_sentences.append(filtered_sentence)
         return filtered_sentences
+    
+    def deny_list(self, denyList):
+        filtered_sentences = []
+        for sentence in self.sentences:
+            doc = nlp(sentence)
+            filtered_tokens = [token.text for token in doc if token.pos_ not in denyList]
+            filtered_sentence = " ".join(filtered_tokens)
+            filtered_sentences.append(filtered_sentence)
+        return filtered_sentences
+    
+    def filter_sentences(self, allowList, denyList):
+        self.allow_list(allowList)
+        self.deny_list(denyList)
+        
 
 if __name__ == "__main__":
     input_sentences = [
